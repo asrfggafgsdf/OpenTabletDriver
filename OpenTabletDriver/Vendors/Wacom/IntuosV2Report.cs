@@ -3,7 +3,7 @@ using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Vendors.Wacom
 {
-    public struct IntuosV2TabletReport : ITabletReport
+    public struct IntuosV2TabletReport : ITabletReport, IExtraIntuosReport
     {
         public IntuosV2TabletReport(byte[] report)
         {
@@ -27,6 +27,9 @@ namespace OpenTabletDriver.Vendors.Wacom
                 (report[1] & (1 << 1)) != 0,
                 (report[1] & (1 << 2)) != 0
             };
+            NearProximity = (report[1] & (1 << 5)) != 0;
+            FarProximity = (report[1] & (1 << 6)) != 0;
+            HoverDistance = (uint)report[9] >> 2;
         }
 
         public byte[] Raw { private set; get; }
@@ -36,5 +39,8 @@ namespace OpenTabletDriver.Vendors.Wacom
         public uint Pressure { private set; get; }
         public bool Eraser { private set; get; }
         public bool[] PenButtons { private set; get; }
+        public bool FarProximity { private set; get; }
+        public bool NearProximity { private set; get; }
+        public uint HoverDistance { private set; get; }
     }
 }
