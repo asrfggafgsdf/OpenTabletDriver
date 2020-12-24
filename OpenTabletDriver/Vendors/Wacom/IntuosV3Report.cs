@@ -20,11 +20,18 @@ namespace OpenTabletDriver.Vendors.Wacom
             }
 
             ReportID = report[0];
-            var x = (report[2] | (report[3] << 8) | (report[4] << 16));
-            var y = (report[5] | (report[6] << 8) | (report[7] << 16));
-            Position = new Vector2(x, y);
+            Position = new Vector2
+            {
+                X = (report[2] | (report[3] << 8) | (report[4] << 16)),
+                Y = (report[5] | (report[6] << 8) | (report[7] << 16))
+            };
+            Tilt = new Vector2
+            {
+                X = (sbyte)report[10],
+                Y = (sbyte)report[11]
+            };
             Pressure = (uint)(report[8] | (report[9] << 8));
-
+            Eraser = (report[1] & (1 << 4)) != 0;
             PenButtons = new bool[]
             {
                 (report[1] & (1 << 1)) != 0,
@@ -35,7 +42,9 @@ namespace OpenTabletDriver.Vendors.Wacom
         public byte[] Raw { private set; get; }
         public uint ReportID { private set; get; }
         public Vector2 Position { private set; get; }
+        public Vector2 Tilt { private set; get; }
         public uint Pressure { private set; get; }
+        public bool Eraser { private set; get; }
         public bool[] PenButtons { private set; get; }
     }
 }

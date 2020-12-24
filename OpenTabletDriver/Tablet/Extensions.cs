@@ -20,7 +20,9 @@ namespace OpenTabletDriver.Tablet
                     ITabletReport tabletReport =>
                         $"ReportID:{tabletReport.ReportID}, " + 
                         $"Position:[{tabletReport.Position.X},{tabletReport.Position.Y}], " + 
+                        $"Tilt:[{tabletReport.Tilt.X},{tabletReport.Tilt.Y}], " + 
                         $"Pressure:{tabletReport.Pressure}, " + 
+                        $"Eraser:{tabletReport.Eraser}, " + 
                         $"PenButtons:[{String.Join(" ", tabletReport.PenButtons)}]",
                     _ =>
                         $"Raw: {BitConverter.ToString(report.Raw).Replace('-', ' ')}"
