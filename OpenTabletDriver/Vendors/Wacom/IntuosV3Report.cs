@@ -3,7 +3,7 @@ using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Vendors.Wacom
 {
-    public class IntuosV3Report : ITabletReport, IExtraIntuosReport
+    public class IntuosV3Report : ITabletReport, IProximityReport, ITiltReport, IEraserReport
     {
         public IntuosV3Report(byte[] report)
         {

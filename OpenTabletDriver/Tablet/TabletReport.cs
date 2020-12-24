@@ -4,7 +4,7 @@ using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Tablet
 {
-    public struct TabletReport : ITabletReport
+    public struct TabletReport : ITabletReport, ITiltReport
     {
         internal TabletReport(byte[] report)
         {
@@ -22,7 +22,6 @@ namespace OpenTabletDriver.Tablet
                 Y = (sbyte)report[11]
             };
             Pressure = BitConverter.ToUInt16(report, 6);
-            Eraser = false;
             PenButtons = new bool[]
             {
                 (report[1] & (1 << 1)) != 0,
@@ -35,7 +34,6 @@ namespace OpenTabletDriver.Tablet
         public Vector2 Position { private set; get; }
         public Vector2 Tilt { private set; get; }
         public uint Pressure { private set; get; }
-        public bool Eraser { private set; get; }
         public bool[] PenButtons { private set; get; }
     }
 }

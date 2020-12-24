@@ -1,8 +1,6 @@
-using System.Numerics;
-
 namespace OpenTabletDriver.Plugin.Tablet
 {
-    public interface IExtraIntuosReport
+    public interface IProximityReport
     {
         bool FarProximity { get; }
         bool NearProximity { get; }

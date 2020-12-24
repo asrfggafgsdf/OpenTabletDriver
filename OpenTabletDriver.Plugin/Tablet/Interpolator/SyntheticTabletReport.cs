@@ -17,9 +17,7 @@ namespace OpenTabletDriver.Plugin.Tablet.Interpolator
             this.Raw = report.Raw;
             this.ReportID = report.ReportID;
             this.Position = report.Position;
-            this.Tilt = report.Tilt;
             this.Pressure = report.Pressure;
-            this.Eraser = report.Eraser;
             this.PenButtons = report.PenButtons;
         }
     }
