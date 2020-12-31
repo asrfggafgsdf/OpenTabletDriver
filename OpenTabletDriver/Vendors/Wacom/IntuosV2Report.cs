@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using OpenTabletDriver.Plugin.Tablet;
 
@@ -42,5 +43,15 @@ namespace OpenTabletDriver.Vendors.Wacom
         public bool FarProximity { private set; get; }
         public bool NearProximity { private set; get; }
         public uint HoverDistance { private set; get; }
+        public string GetStringFormat() =>
+            $"ReportID:{ReportID}, " +
+            $"Position:[{Position.X},{Position.Y}], " +
+            $"Tilt:[{Tilt.X},{Tilt.Y}], " +
+            $"Pressure:{Pressure}, " +
+            $"Eraser (not implemented):{Eraser}, " +
+            $"PenButtons:[{String.Join(" ", PenButtons)}], " +
+            $"FarProximity:{FarProximity}, " +
+            $"NearProximity:{NearProximity}, " +
+            $"HoverDistance:{HoverDistance}";
     }
 }

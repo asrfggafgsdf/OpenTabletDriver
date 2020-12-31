@@ -1,3 +1,4 @@
+using System;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Tablet
@@ -18,5 +19,6 @@ namespace OpenTabletDriver.Tablet
 
         public byte[] Raw { private set; get; }
         public bool[] AuxButtons { private set; get; }
+        public string GetStringFormat() => $"AuxButtons:[{String.Join(" ", AuxButtons)}]";
     }
 }

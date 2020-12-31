@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace OpenTabletDriver.Plugin.Tablet.Interpolator
 {
@@ -20,5 +21,10 @@ namespace OpenTabletDriver.Plugin.Tablet.Interpolator
             this.Pressure = report.Pressure;
             this.PenButtons = report.PenButtons;
         }
+        public string GetStringFormat() =>
+            $"ReportID:{ReportID}, " +
+            $"Position:[{Position.X},{Position.Y}], " +
+            $"Pressure:{Pressure}, " +
+            $"PenButtons:[{String.Join(" ", PenButtons)}]";
     }
 }

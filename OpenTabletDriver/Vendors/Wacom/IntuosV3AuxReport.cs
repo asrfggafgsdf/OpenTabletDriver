@@ -1,3 +1,4 @@
+using System;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Vendors.Wacom
@@ -20,5 +21,6 @@ namespace OpenTabletDriver.Vendors.Wacom
         
         public byte[] Raw { private set; get; }
         public bool[] AuxButtons { private set; get; }
+        public string GetStringFormat() => $"AuxButtons:[{String.Join(" ", AuxButtons)}]";
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Vendors.Gaomon
@@ -18,5 +19,6 @@ namespace OpenTabletDriver.Vendors.Gaomon
 
         public bool[] AuxButtons { private set; get; }
         public byte[] Raw { private set; get; }
+        public string GetStringFormat() => $"AuxButtons:[{String.Join(" ", AuxButtons)}]";
     }
 }

@@ -66,8 +66,7 @@ namespace OpenTabletDriver.Daemon
         }
 
         public event EventHandler<LogMessage> Message;
-        public event EventHandler<DebugTabletReport> TabletReport;
-        public event EventHandler<DebugAuxReport> AuxReport;
+        public event EventHandler<DebugReport> DebugReportEvent;
         public event EventHandler<TabletState> TabletChanged;
 
         public DesktopDriver Driver { private set; get; } = new DesktopDriver();
@@ -359,10 +358,7 @@ namespace OpenTabletDriver.Daemon
         {
             void onDeviceReport(object _, IDeviceReport report)
             {
-                if (report is ITabletReport tabletReport)
-                    TabletReport?.Invoke(this, new DebugTabletReport(tabletReport));
-                if (report is IAuxReport auxReport)
-                    AuxReport?.Invoke(this, new DebugAuxReport(auxReport));
+                DebugReportEvent?.Invoke(this, new DebugReport(report));
             }
             if (enabled)
             {

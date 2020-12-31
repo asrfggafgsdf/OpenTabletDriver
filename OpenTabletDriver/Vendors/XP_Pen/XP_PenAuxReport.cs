@@ -1,3 +1,4 @@
+using System;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Vendors.XP_Pen
@@ -26,5 +27,6 @@ namespace OpenTabletDriver.Vendors.XP_Pen
 
         public bool[] AuxButtons { private set; get; }
         public byte[] Raw { private set; get; }
+        public string GetStringFormat() => $"AuxButtons:[{String.Join(" ", AuxButtons)}]";
     }
 }
