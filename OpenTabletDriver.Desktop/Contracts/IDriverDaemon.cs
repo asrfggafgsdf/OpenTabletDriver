@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OpenTabletDriver.Debugging;
+using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.Desktop.Reflection.Metadata;
 using OpenTabletDriver.Plugin.Logging;
 using OpenTabletDriver.Plugin.Tablet;
 
@@ -18,6 +20,7 @@ namespace OpenTabletDriver.Desktop.Contracts
         Task LoadPlugins();
         Task<bool> InstallPlugin(string filePath);
         Task<bool> UninstallPlugin(string friendlyName);
+        Task<bool> DownloadPlugin(PluginMetadata metadata);
 
         Task<TabletState> GetTablet();
         Task<TabletState> DetectTablets();

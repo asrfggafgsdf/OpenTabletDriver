@@ -6,12 +6,12 @@ using Eto.Forms;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Diagnostics;
 using OpenTabletDriver.Desktop.Interop;
-using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Interpolator;
 using OpenTabletDriver.UX.Controls;
 using OpenTabletDriver.UX.Windows;
+using OpenTabletDriver.UX.Windows.Greeter;
 
 namespace OpenTabletDriver.UX
 {
@@ -204,14 +204,11 @@ namespace OpenTabletDriver.UX
             var pluginManager = new Command { MenuText = "Open Plugin Manager..." };
             pluginManager.Executed += (sender, e) => ShowPluginManager();
 
-            var pluginsDirectory = new Command { MenuText = "Open plugins directory..." };
-            pluginsDirectory.Executed += (sender, e) => SystemInterop.OpenFolder(AppInfo.Current.PluginDirectory);
-
-            var pluginsRepository = new Command { MenuText = "Open plugins repository..." };
-            pluginsRepository.Executed += (sender, e) => SystemInterop.Open(PluginRepositoryUrl);
-
             var faqUrl = new Command { MenuText = "Open FAQ Page..." };
             faqUrl.Executed += (sender, e) => SystemInterop.Open(FaqUrl);
+
+            var showGuide = new Command { MenuText = "Show guide..." };
+            showGuide.Executed += async (sender, e) => await ShowFirstStartupGreeter();
 
             var exportDiagnostics = new Command { MenuText = "Export diagnostics..." };
             exportDiagnostics.Executed += async (sender, e) => await ExportDiagnostics();
@@ -251,9 +248,7 @@ namespace OpenTabletDriver.UX
                         Text = "Plugins",
                         Items =
                         {
-                            pluginManager,
-                            pluginsDirectory,
-                            pluginsRepository
+                            pluginManager
                         }
                     },
                     new ButtonMenuItem
@@ -262,7 +257,8 @@ namespace OpenTabletDriver.UX
                         Items =
                         {
                             faqUrl,
-                            exportDiagnostics
+                            exportDiagnostics,
+                            showGuide
                         }
                     }
                 },
@@ -403,6 +399,9 @@ namespace OpenTabletDriver.UX
                 await ResetSettings();
             }
 
+            if (!settingsFile.Exists)
+                await ShowFirstStartupGreeter();
+
             outputModeEditor.SetDisplaySize(SystemInterop.VirtualScreen.Displays);
         }
 
@@ -516,6 +515,16 @@ namespace OpenTabletDriver.UX
                 var settings = await Driver.Instance.GetSettings();
                 await Driver.Instance.EnableInput(settings?.AutoHook ?? false);
             }
+        }
+
+        private async Task ShowFirstStartupGreeter()
+        {
+            this.Visible = false;
+
+            var greeter = new StartupGreeterWindow();
+            await greeter.ShowModalAsync();
+
+            this.Visible = true;
         }
 
         private void ShowConfigurationEditor()

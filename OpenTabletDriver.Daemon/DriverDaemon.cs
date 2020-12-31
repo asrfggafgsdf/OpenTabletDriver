@@ -14,6 +14,7 @@ using OpenTabletDriver.Desktop.Interop;
 using OpenTabletDriver.Desktop.Migration;
 using OpenTabletDriver.Desktop.Output;
 using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.Desktop.Reflection.Metadata;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Logging;
 using OpenTabletDriver.Plugin.Output;
@@ -107,6 +108,11 @@ namespace OpenTabletDriver.Daemon
             return Task.FromResult(AppInfo.PluginManager.UninstallPlugin(plugin));
         }
 
+        public Task<bool> DownloadPlugin(PluginMetadata metadata)
+        {
+            return AppInfo.PluginManager.DownloadPlugin(metadata);
+        }
+
         public Task<TabletState> GetTablet()
         {
             return Task.FromResult(Driver.Tablet);
@@ -182,6 +188,8 @@ namespace OpenTabletDriver.Daemon
                 TabletY = tablet?.Height / 2 ?? 0,
                 AutoHook = true,
                 EnableClipping = true,
+                LockUsableAreaDisplay = true,
+                LockUsableAreaTablet = true,
                 TipButton = new PluginSettingStore(
                     new MouseBinding
                     {
