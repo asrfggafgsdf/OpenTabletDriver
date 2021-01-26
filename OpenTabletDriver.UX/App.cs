@@ -55,8 +55,9 @@ namespace OpenTabletDriver.UX
 
         public const string PluginRepositoryUrl = "https://github.com/InfinityGhost/OpenTabletDriver/wiki/Plugin-Repository";
         public const string FaqUrl = "https://github.com/InfinityGhost/OpenTabletDriver/wiki#frequently-asked-questions";
+        public static readonly string Version = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
 
-        public static RpcClient<IDriverDaemon> Driver => _daemon.Value;
+        public static RpcClient<IDriverDaemon> Driver { get; } = new RpcClient<IDriverDaemon>("OpenTabletDriver.Daemon");
         public static Bitmap Logo => _logo.Value;
 
         public static event Action<Settings> SettingsChanged;
@@ -78,7 +79,7 @@ namespace OpenTabletDriver.UX
             ProgramDescription = "Open source, cross-platform tablet configurator",
             WebsiteLabel = "OpenTabletDriver GitHub Repository",
             Website = new Uri(@"https://github.com/InfinityGhost/OpenTabletDriver"),
-            Version = $"v{Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion}",
+            Version = $"v{Version}",
             Developers = new string[] { "InfinityGhost" },
             Designers = new string[] { "InfinityGhost" },
             Documenters = new string[] { "InfinityGhost" },
@@ -93,11 +94,6 @@ namespace OpenTabletDriver.UX
             PluginPlatform.MacOS   => true,
             _                       => false
         };
-
-        private static readonly Lazy<RpcClient<IDriverDaemon>> _daemon = new Lazy<RpcClient<IDriverDaemon>>(() =>
-        {
-            return new RpcClient<IDriverDaemon>("OpenTabletDriver.Daemon");
-        });
 
         private static readonly Lazy<Bitmap> _logo = new Lazy<Bitmap>(() =>
         {

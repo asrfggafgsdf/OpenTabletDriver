@@ -31,7 +31,7 @@ namespace OpenTabletDriver
         }
         
         public event EventHandler<bool> Reading;
-        public event EventHandler<IDeviceReport> ReportRecieved;
+        public event EventHandler<IDeviceReport> ReportReceived;
         public event EventHandler<DevicesChangedEventArgs> DevicesChanged;
         public event EventHandler<TabletState> TabletChanged;
 
@@ -47,11 +47,14 @@ namespace OpenTabletDriver
         {
             private set
             {
-                // Stored locally to avoid re-detecting to switch output modes
-                this.tablet = value;
-                if (OutputMode != null)
-                    OutputMode.Tablet = Tablet;
-                TabletChanged?.Invoke(this, Tablet);
+                if (value != this.tablet)
+                {
+                    // Stored locally to avoid re-detecting to switch output modes
+                    this.tablet = value;
+                    if (OutputMode != null)
+                        OutputMode.Tablet = Tablet;
+                    TabletChanged?.Invoke(this, value);
+                }
             }
             get => this.tablet;
         }
@@ -173,21 +176,35 @@ namespace OpenTabletDriver
 
             if (tablet.FeatureInitReport is byte[] featureInitReport && featureInitReport.Length > 0)
             {
-                Log.Debug("Device", "Setting feature: " + BitConverter.ToString(featureInitReport));
-                TabletReader.ReportStream.SetFeature(featureInitReport);
+                try
+                {
+                    TabletReader.ReportStream.SetFeature(featureInitReport);
+                    Log.Debug("Device", "Set tablet feature: " + BitConverter.ToString(featureInitReport));
+                }
+                catch
+                {
+                    Log.Write("Device", "Failed to set tablet feature: " + BitConverter.ToString(featureInitReport), LogLevel.Warning);
+                }
             }
 
             if (tablet.OutputInitReport is byte[] outputInitReport && outputInitReport.Length > 0)
             {
-                Log.Debug("Device", "Setting output: " + BitConverter.ToString(outputInitReport));
-                TabletReader.ReportStream.Write(outputInitReport);
+                try
+                {
+                    TabletReader.ReportStream.Write(outputInitReport);
+                    Log.Debug("Device", "Set tablet output: " + BitConverter.ToString(outputInitReport));
+                }
+                catch
+                {
+                    Log.Write("Device", "Failed to set tablet output: " + BitConverter.ToString(outputInitReport), LogLevel.Warning);
+                }
             }
         }
 
         protected void InitializeAuxDevice(HidDevice auxDevice, DeviceIdentifier identifier, IReportParser<IDeviceReport> reportParser)
         {
             AuxReader?.Dispose();
-            
+
             Log.Debug("Detect", $"Using auxiliary device '{auxDevice.GetFriendlyName()}'.");
             Log.Debug("Detect", $"Using auxiliary report parser type '{reportParser.GetType().Name}'.");
             Log.Debug("Detect", $"Device path: {auxDevice.DevicePath}");
@@ -197,20 +214,34 @@ namespace OpenTabletDriver
                 Log.Debug("Device", $"Initializing index {index}");
                 auxDevice.GetDeviceString(index);
             }
-            
+
             AuxReader = new DeviceReader<IDeviceReport>(auxDevice, reportParser);
             AuxReader.Report += OnReportRecieved;
 
             if (identifier.FeatureInitReport is byte[] featureInitReport && featureInitReport.Length > 0)
             {
-                Log.Debug("Device", "Setting aux feature: " + BitConverter.ToString(featureInitReport));
-                AuxReader.ReportStream.SetFeature(featureInitReport);
+                try
+                {
+                    AuxReader.ReportStream.SetFeature(featureInitReport);
+                    Log.Debug("Device", "Set aux feature: " + BitConverter.ToString(featureInitReport));
+                }
+                catch
+                {
+                    Log.Write("Device", "Failed to set aux feature: " + BitConverter.ToString(featureInitReport), LogLevel.Warning);
+                }
             }
 
             if (identifier.OutputInitReport is byte[] outputInitReport && outputInitReport.Length > 0)
             {
-                Log.Debug("Device", "Setting aux output: " + BitConverter.ToString(outputInitReport));
-                AuxReader.ReportStream.Write(outputInitReport);
+                try
+                {
+                    AuxReader.ReportStream.Write(outputInitReport);
+                    Log.Debug("Device", "Set aux output: " + BitConverter.ToString(outputInitReport));
+                }
+                catch
+                {
+                    Log.Write("Device", "Failed to set output: " + BitConverter.ToString(outputInitReport), LogLevel.Warning);
+                }
             }
         }
 
@@ -301,7 +332,7 @@ namespace OpenTabletDriver
 
         public virtual void OnReportRecieved(object _, IDeviceReport report)
         {
-            this.ReportRecieved?.Invoke(this, report);
+            this.ReportReceived?.Invoke(this, report);
             if (EnableInput && OutputMode?.Tablet != null)
                 if (Interpolators.Count == 0 || (Interpolators.Count > 0 && report is ISyntheticReport) || report is IAuxReport)
                     HandleReport(report);

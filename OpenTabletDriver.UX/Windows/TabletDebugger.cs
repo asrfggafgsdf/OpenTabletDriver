@@ -2,11 +2,14 @@
 using Eto.Drawing;
 using Eto.Forms;
 using OpenTabletDriver.Debugging;
+using OpenTabletDriver.Plugin.Tablet;
+using OpenTabletDriver.Plugin.Timing;
+using OpenTabletDriver.Tablet;
 using OpenTabletDriver.UX.Controls.Generic;
 
 namespace OpenTabletDriver.UX.Windows
 {
-    public class TabletDebugger : Form
+    public class TabletDebugger : DesktopForm
     {
         public TabletDebugger()
         {
@@ -57,14 +60,12 @@ namespace OpenTabletDriver.UX.Windows
         }
 
         private TextGroup rawTabletBox, tabletBox, reportRateBox;
-        private float reportRate;
-        private DateTime lastTime = DateTime.UtcNow;
+        private double reportRate;
+        private HPETDeltaStopwatch stopwatch = new HPETDeltaStopwatch(true);
 
         private void HandleReport(object sender, DebugReport report)
         {
-            var now = DateTime.UtcNow;
-            reportRate += (float)(((now - lastTime).TotalMilliseconds - reportRate) / 50);
-            lastTime = now;
+            reportRate += (stopwatch.Restart().TotalMilliseconds - reportRate) / 10.0f;
 
             rawTabletBox.Update(report?.Raw);
             tabletBox.Update(report?.Interpreted.Replace(", ", Environment.NewLine));

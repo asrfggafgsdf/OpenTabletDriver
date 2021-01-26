@@ -5,6 +5,7 @@ using System.Numerics;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Platform.Pointer;
 using OpenTabletDriver.Plugin.Tablet;
+using OpenTabletDriver.Plugin.Timing;
 
 namespace OpenTabletDriver.Plugin.Output
 {
@@ -13,14 +14,15 @@ namespace OpenTabletDriver.Plugin.Output
     {
         private IList<IFilter> filters, preFilters, postFilters;
         private Vector2? lastPos;
-        private DateTime lastReceived;
+        private HPETDeltaStopwatch stopwatch = new HPETDeltaStopwatch(true);
+        private bool skipReport = false;
         private Matrix3x2 transformationMatrix;
 
         public IList<IFilter> Filters
         {
             set
             {
-                this.filters = value;
+                this.filters = value ?? Array.Empty<IFilter>();
                 if (Info.Driver.InterpolatorActive)
                     this.preFilters = Filters.Where(t => t.FilterStage == FilterStage.PreTranspose).ToList();
                 else
@@ -67,7 +69,7 @@ namespace OpenTabletDriver.Plugin.Output
 
         private void UpdateTransformMatrix()
         {
-            this.lastReceived = default;  // Prevents cursor from jumping on sensitivity change
+            this.skipReport = true; // Prevents cursor from jumping on sensitivity change
 
             this.transformationMatrix = Matrix3x2.CreateRotation(
                 (float)(-Rotation * System.Math.PI / 180));
@@ -85,6 +87,9 @@ namespace OpenTabletDriver.Plugin.Output
             {
                 if (Tablet.Digitizer.ActiveReportID.IsInRange(tabletReport.ReportID))
                 {
+                    if (Pointer is IVirtualTablet pressureHandler)
+                        pressureHandler.SetPressure((float)tabletReport.Pressure / (float)Tablet.Digitizer.MaxPressure);
+
                     if (Transpose(tabletReport) is Vector2 position)
                         Pointer.Translate(position);
                 }
@@ -93,25 +98,29 @@ namespace OpenTabletDriver.Plugin.Output
 
         public Vector2? Transpose(ITabletReport report)
         {
-            var difference = DateTime.Now - this.lastReceived;
-            this.lastReceived = DateTime.Now;
+            var deltaTime = stopwatch.Restart();
 
             var pos = report.Position;
 
             // Pre Filter
-            foreach (IFilter filter in this.preFilters)
+            foreach (IFilter filter in this.preFilters ??= Array.Empty<IFilter>())
                 pos = filter.Filter(pos);
 
             pos = Vector2.Transform(pos, this.transformationMatrix);
 
             // Post Filter
-            foreach (IFilter filter in this.postFilters)
+            foreach (IFilter filter in this.postFilters ??= Array.Empty<IFilter>())
                 pos = filter.Filter(pos);
 
             var delta = pos - this.lastPos;
             this.lastPos = pos;
 
-            return (difference > ResetTime) ? null : delta;
+            if (skipReport)
+            {
+                skipReport = false;
+                return null;
+            }
+            return (deltaTime > ResetTime) ? null : delta;
         }
     }
 }
